@@ -142,10 +142,13 @@ uint8_t App_SetSystemState(SystemState_e s) {
 				// Enable the double-tap detection
 				LSM6DSL_Enable_DoubleTapInterrupt(1);
 
+				/*
 				if(myTick >= 120000) {
+					myTick = 0;
 					LSM6DSL_Enable_DoubleTapInterrupt(0);
-					App_SetSystemState(SYSTEM_STATE_IDLE_CONNECTED);
+					App_SetSystemState(SYSTEM_STATE_IDLE);
 				}
+				*/
 
 				break;
 			case SYSTEM_STATE_LOG:
@@ -573,6 +576,8 @@ uint8_t do_InitJob(void) {
  */
 void do_IdleJob(void) {
 	// Check the idle-to-sleep timeout (only in case of SYSTEM_STATE_IDLE)
+
+	/*
 	if (myTick >= TIMEOUT_IDLE_TO_SLEEP
 			&& App_GetSystemState() == SYSTEM_STATE_IDLE) {
 		App_SetSystemState(SYSTEM_STATE_SLEEP);
@@ -585,6 +590,14 @@ void do_IdleJob(void) {
 			IO_ResetLED(LED_BLUE);
 		}
 	}
+
+	*/
+
+	if ((myTick % LED_BLINK_PERIOD_IDLE) == 0) {
+				IO_SetLED(LED_BLUE);
+				HAL_Delay(10);
+				IO_ResetLED(LED_BLUE);
+			}
 }
 
 /*
