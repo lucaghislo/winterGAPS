@@ -141,6 +141,12 @@ uint8_t App_SetSystemState(SystemState_e s) {
 
 				// Enable the double-tap detection
 				LSM6DSL_Enable_DoubleTapInterrupt(1);
+
+				if(myTick >= 120000) {
+					LSM6DSL_Enable_DoubleTapInterrupt(0);
+					App_SetSystemState(SYSTEM_STATE_IDLE_CONNECTED);
+				}
+
 				break;
 			case SYSTEM_STATE_LOG:
 				// Check the SD presence
