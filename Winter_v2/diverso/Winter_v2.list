@@ -33,13 +33,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  14 .debug_macro  0002cc5e  00000000  00000000  0005bdb0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_line   0001fa90  00000000  00000000  00088a0e  2**0
+ 15 .debug_line   0001fa7c  00000000  00000000  00088a0e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_str    000f7ea4  00000000  00000000  000a849e  2**0
+ 16 .debug_str    000f7ea4  00000000  00000000  000a848a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .comment      00000053  00000000  00000000  001a0342  2**0
+ 17 .comment      00000053  00000000  00000000  001a032e  2**0
                   CONTENTS, READONLY
- 18 .debug_frame  000060c0  00000000  00000000  001a0398  2**2
+ 18 .debug_frame  000060c0  00000000  00000000  001a0384  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -11944,45 +11944,45 @@ uint8_t App_SetSystemState(SystemState_e s) {
  8004534:	0800455f 	.word	0x0800455f
  8004538:	2bff      	cmp	r3, #255	; 0xff
  800453a:	d014      	beq.n	8004566 <App_SetSystemState+0xe2>
-				break;
-			case SYSTEM_STATE_ERROR:
-				IO_ResetLED(LED_RED);
-				break;
-			default:
-				break;
+			break;
+		case SYSTEM_STATE_ERROR:
+			IO_ResetLED(LED_RED);
+			break;
+		default:
+			break;
  800453c:	e017      	b.n	800456e <App_SetSystemState+0xea>
-				IO_ResetLED(LED_BLUE);
+			IO_ResetLED(LED_BLUE);
  800453e:	2004      	movs	r0, #4
  8004540:	f005 fd9c 	bl	800a07c <IO_ResetLED>
-				break;
+			break;
  8004544:	e014      	b.n	8004570 <App_SetSystemState+0xec>
-				if (s == SYSTEM_STATE_IDLE || s == SYSTEM_STATE_IDLE_CONNECTED)
+			if (s == SYSTEM_STATE_IDLE || s == SYSTEM_STATE_IDLE_CONNECTED)
  8004546:	79fb      	ldrb	r3, [r7, #7]
  8004548:	2b10      	cmp	r3, #16
  800454a:	d002      	beq.n	8004552 <App_SetSystemState+0xce>
  800454c:	79fb      	ldrb	r3, [r7, #7]
  800454e:	2b14      	cmp	r3, #20
  8004550:	d101      	bne.n	8004556 <App_SetSystemState+0xd2>
-					__NOP();
+				__NOP();
  8004552:	bf00      	nop
-				break;
+			break;
  8004554:	e00c      	b.n	8004570 <App_SetSystemState+0xec>
-					IO_ResetLED(LED_GREEN | LED_BLUE);
+				IO_ResetLED(LED_GREEN | LED_BLUE);
  8004556:	2006      	movs	r0, #6
  8004558:	f005 fd90 	bl	800a07c <IO_ResetLED>
-				break;
+			break;
  800455c:	e008      	b.n	8004570 <App_SetSystemState+0xec>
-				IO_ResetLED(LED_GREEN);
+			IO_ResetLED(LED_GREEN);
  800455e:	2002      	movs	r0, #2
  8004560:	f005 fd8c 	bl	800a07c <IO_ResetLED>
-				break;
+			break;
  8004564:	e004      	b.n	8004570 <App_SetSystemState+0xec>
-				IO_ResetLED(LED_RED);
+			IO_ResetLED(LED_RED);
  8004566:	2001      	movs	r0, #1
  8004568:	f005 fd88 	bl	800a07c <IO_ResetLED>
-				break;
+			break;
  800456c:	e000      	b.n	8004570 <App_SetSystemState+0xec>
-				break;
+			break;
  800456e:	bf00      	nop
 		}
 
@@ -12033,82 +12033,83 @@ uint8_t App_SetSystemState(SystemState_e s) {
  8004608:	0800466b 	.word	0x0800466b
  800460c:	2bff      	cmp	r3, #255	; 0xff
  800460e:	d04a      	beq.n	80046a6 <App_SetSystemState+0x222>
-				break;
-			case SYSTEM_STATE_ERROR:
-				App_SetPeriod(PERIOD_ERROR);
-				break;
-			default:
-				break;
+			break;
+		case SYSTEM_STATE_ERROR:
+			App_SetPeriod(PERIOD_ERROR);
+			break;
+		default:
+			break;
  8004610:	e04e      	b.n	80046b0 <App_SetSystemState+0x22c>
-				IO_SetLED(LED_BLUE);
+			IO_SetLED(LED_BLUE);
  8004612:	2004      	movs	r0, #4
  8004614:	f005 fd06 	bl	800a024 <IO_SetLED>
-				break;
+			break;
  8004618:	e04b      	b.n	80046b2 <App_SetSystemState+0x22e>
-				if (winter.state == SYSTEM_STATE_IDLE
+			if (winter.state == SYSTEM_STATE_IDLE
  800461a:	4b33      	ldr	r3, [pc, #204]	; (80046e8 <App_SetSystemState+0x264>)
  800461c:	781b      	ldrb	r3, [r3, #0]
  800461e:	2b10      	cmp	r3, #16
  8004620:	d003      	beq.n	800462a <App_SetSystemState+0x1a6>
-						|| winter.state == SYSTEM_STATE_IDLE_CONNECTED) {
+					|| winter.state == SYSTEM_STATE_IDLE_CONNECTED) {
  8004622:	4b31      	ldr	r3, [pc, #196]	; (80046e8 <App_SetSystemState+0x264>)
  8004624:	781b      	ldrb	r3, [r3, #0]
  8004626:	2b14      	cmp	r3, #20
  8004628:	d101      	bne.n	800462e <App_SetSystemState+0x1aa>
-					__NOP();
+				__NOP();
  800462a:	bf00      	nop
-				break;
+			break;
  800462c:	e041      	b.n	80046b2 <App_SetSystemState+0x22e>
-					LSM6DSL_Enable_DoubleTapInterrupt(0);
+				LSM6DSL_Enable_DoubleTapInterrupt(0);
  800462e:	2000      	movs	r0, #0
  8004630:	f005 f8ca 	bl	80097c8 <LSM6DSL_Enable_DoubleTapInterrupt>
-					LSM6DSL_PowerDown_Axl(1);
+				LSM6DSL_PowerDown_Axl(1);
  8004634:	2001      	movs	r0, #1
  8004636:	f005 f819 	bl	800966c <LSM6DSL_PowerDown_Axl>
-					LSM6DSL_PowerDown_Gyro(1);
+				LSM6DSL_PowerDown_Gyro(1);
  800463a:	2001      	movs	r0, #1
  800463c:	f005 f860 	bl	8009700 <LSM6DSL_PowerDown_Gyro>
-					if (!winter.lprEnabled) Enable_LPR_Mode();
+				if (!winter.lprEnabled)
  8004640:	4b29      	ldr	r3, [pc, #164]	; (80046e8 <App_SetSystemState+0x264>)
  8004642:	791b      	ldrb	r3, [r3, #4]
  8004644:	2b00      	cmp	r3, #0
  8004646:	d101      	bne.n	800464c <App_SetSystemState+0x1c8>
+					Enable_LPR_Mode();
  8004648:	f001 f8a6 	bl	8005798 <Enable_LPR_Mode>
-					App_SetPeriod(PERIOD_IDLE);
+				App_SetPeriod(PERIOD_IDLE);
  800464c:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
  8004650:	f7ff fefc 	bl	800444c <App_SetPeriod>
-				break;
+			break;
  8004654:	e02d      	b.n	80046b2 <App_SetSystemState+0x22e>
-				LSM6DSL_PowerDown_Axl(0);
+			LSM6DSL_PowerDown_Axl(0);
  8004656:	2000      	movs	r0, #0
  8004658:	f005 f808 	bl	800966c <LSM6DSL_PowerDown_Axl>
-				LSM6DSL_Set_Axl_ODR(LSM6DSL_ODR_104Hz);
+			LSM6DSL_Set_Axl_ODR(LSM6DSL_ODR_104Hz);
  800465c:	2040      	movs	r0, #64	; 0x40
  800465e:	f005 f899 	bl	8009794 <LSM6DSL_Set_Axl_ODR>
-				LSM6DSL_Enable_DoubleTapInterrupt(1);
+			LSM6DSL_Enable_DoubleTapInterrupt(1);
  8004662:	2001      	movs	r0, #1
  8004664:	f005 f8b0 	bl	80097c8 <LSM6DSL_Enable_DoubleTapInterrupt>
-				break;
+			break;
  8004668:	e023      	b.n	80046b2 <App_SetSystemState+0x22e>
-				if ((winter.logSensors & SENS_AXL) != 0)
+			if ((winter.logSensors & SENS_AXL) != 0)
  800466a:	4b1f      	ldr	r3, [pc, #124]	; (80046e8 <App_SetSystemState+0x264>)
  800466c:	795b      	ldrb	r3, [r3, #5]
  800466e:	f003 0301 	and.w	r3, r3, #1
  8004672:	2b00      	cmp	r3, #0
  8004674:	d002      	beq.n	800467c <App_SetSystemState+0x1f8>
-					LSM6DSL_PowerDown_Axl(0);
+				LSM6DSL_PowerDown_Axl(0);
  8004676:	2000      	movs	r0, #0
  8004678:	f004 fff8 	bl	800966c <LSM6DSL_PowerDown_Axl>
-				if ((winter.logSensors & SENS_GYRO) != 0)
+			if ((winter.logSensors & SENS_GYRO) != 0)
  800467c:	4b1a      	ldr	r3, [pc, #104]	; (80046e8 <App_SetSystemState+0x264>)
  800467e:	795b      	ldrb	r3, [r3, #5]
  8004680:	f003 0302 	and.w	r3, r3, #2
  8004684:	2b00      	cmp	r3, #0
  8004686:	d002      	beq.n	800468e <App_SetSystemState+0x20a>
-					LSM6DSL_PowerDown_Gyro(0);
+				LSM6DSL_PowerDown_Gyro(0);
  8004688:	2000      	movs	r0, #0
  800468a:	f005 f839 	bl	8009700 <LSM6DSL_PowerDown_Gyro>
-				App_SetPeriod(1000 / winter.logFrequency);
+			App_SetPeriod(1000 / winter.logFrequency);
  800468e:	4b16      	ldr	r3, [pc, #88]	; (80046e8 <App_SetSystemState+0x264>)
  8004690:	88db      	ldrh	r3, [r3, #6]
  8004692:	461a      	mov	r2, r3
@@ -12117,14 +12118,14 @@ uint8_t App_SetSystemState(SystemState_e s) {
  800469c:	b29b      	uxth	r3, r3
  800469e:	4618      	mov	r0, r3
  80046a0:	f7ff fed4 	bl	800444c <App_SetPeriod>
-				break;
+			break;
  80046a4:	e005      	b.n	80046b2 <App_SetSystemState+0x22e>
-				App_SetPeriod(PERIOD_ERROR);
+			App_SetPeriod(PERIOD_ERROR);
  80046a6:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
  80046aa:	f7ff fecf 	bl	800444c <App_SetPeriod>
-				break;
+			break;
  80046ae:	e000      	b.n	80046b2 <App_SetSystemState+0x22e>
-				break;
+			break;
  80046b0:	bf00      	nop
 		}
 
@@ -12404,30 +12405,30 @@ void App_DoJob(void) {
  8004878:	0800488f 	.word	0x0800488f
  800487c:	2bff      	cmp	r3, #255	; 0xff
  800487e:	d009      	beq.n	8004894 <App_DoJob+0xb4>
-			break;
-		case SYSTEM_STATE_ERROR:
-			do_ErrorJob();
-			break;
-		default:
-			break;
+		break;
+	case SYSTEM_STATE_ERROR:
+		do_ErrorJob();
+		break;
+	default:
+		break;
  8004880:	e00b      	b.n	800489a <App_DoJob+0xba>
-			do_InitJob();
+		do_InitJob();
  8004882:	f000 f94d 	bl	8004b20 <do_InitJob>
-			break;
+		break;
  8004886:	e009      	b.n	800489c <App_DoJob+0xbc>
-			do_IdleJob();
+		do_IdleJob();
  8004888:	f000 f98e 	bl	8004ba8 <do_IdleJob>
-			break;
+		break;
  800488c:	e006      	b.n	800489c <App_DoJob+0xbc>
-			do_LogJob();
+		do_LogJob();
  800488e:	f000 f9a9 	bl	8004be4 <do_LogJob>
-			break;
+		break;
  8004892:	e003      	b.n	800489c <App_DoJob+0xbc>
-			do_ErrorJob();
+		do_ErrorJob();
  8004894:	f000 f9c8 	bl	8004c28 <do_ErrorJob>
-			break;
+		break;
  8004898:	e000      	b.n	800489c <App_DoJob+0xbc>
-			break;
+		break;
  800489a:	bf00      	nop
 	}
 
@@ -12455,7 +12456,7 @@ void App_Handle_SysTick(void) {
  80048b4:	6013      	str	r3, [r2, #0]
 
 	// Schedule the main job
-	if (myTick % App_GetPeriod() == 0) HAL_NVIC_SetPendingIRQ(JOB_IRQn);
+	if (myTick % App_GetPeriod() == 0)
  80048b6:	4b10      	ldr	r3, [pc, #64]	; (80048f8 <App_Handle_SysTick+0x50>)
  80048b8:	681c      	ldr	r4, [r3, #0]
  80048ba:	f7ff fdbb 	bl	8004434 <App_GetPeriod>
@@ -12465,11 +12466,12 @@ void App_Handle_SysTick(void) {
  80048c8:	1ae3      	subs	r3, r4, r3
  80048ca:	2b00      	cmp	r3, #0
  80048cc:	d102      	bne.n	80048d4 <App_Handle_SysTick+0x2c>
+		HAL_NVIC_SetPendingIRQ(JOB_IRQn);
  80048ce:	2036      	movs	r0, #54	; 0x36
  80048d0:	f7fc f82b 	bl	800092a <HAL_NVIC_SetPendingIRQ>
 
 	// Schedule the Bluetooth job
-	if (myTick % 100 == 0) HAL_NVIC_SetPendingIRQ(BLE_JOB_IRQn);
+	if (myTick % 100 == 0)
  80048d4:	4b08      	ldr	r3, [pc, #32]	; (80048f8 <App_Handle_SysTick+0x50>)
  80048d6:	681a      	ldr	r2, [r3, #0]
  80048d8:	4b08      	ldr	r3, [pc, #32]	; (80048fc <App_Handle_SysTick+0x54>)
@@ -12480,6 +12482,7 @@ void App_Handle_SysTick(void) {
  80048e6:	1ad3      	subs	r3, r2, r3
  80048e8:	2b00      	cmp	r3, #0
  80048ea:	d102      	bne.n	80048f2 <App_Handle_SysTick+0x4a>
+		HAL_NVIC_SetPendingIRQ(BLE_JOB_IRQn);
  80048ec:	201c      	movs	r0, #28
  80048ee:	f7fc f81c 	bl	800092a <HAL_NVIC_SetPendingIRQ>
 }
@@ -12539,16 +12542,16 @@ void App_Handle_BTDisconnected(void) {
  800492c:	4603      	mov	r3, r0
  800492e:	2b14      	cmp	r3, #20
  8004930:	d103      	bne.n	800493a <App_Handle_BTDisconnected+0x16>
-		case SYSTEM_STATE_IDLE_CONNECTED:
-			// Get back to IDLE state
-			App_SetSystemState(SYSTEM_STATE_IDLE);
+	case SYSTEM_STATE_IDLE_CONNECTED:
+		// Get back to IDLE state
+		App_SetSystemState(SYSTEM_STATE_IDLE);
  8004932:	2010      	movs	r0, #16
  8004934:	f7ff fda6 	bl	8004484 <App_SetSystemState>
-			break;
+		break;
  8004938:	e000      	b.n	800493c <App_Handle_BTDisconnected+0x18>
-		default:
-			// Nothing to do
-			break;
+	default:
+		// Nothing to do
+		break;
  800493a:	bf00      	nop
 	}
 }
@@ -12942,16 +12945,15 @@ uint8_t do_InitJob(void) {
  8004b2a:	f005 fad3 	bl	800a0d4 <IO_Enable_VCC>
 
 	// Initialize the LSM6DSL only if not dealing with a wake-up from STOP mode
-	if (winter.oldState != SYSTEM_STATE_SLEEP) initStatus.LSM6DSL =
+	if (winter.oldState != SYSTEM_STATE_SLEEP)
  8004b2e:	4b1b      	ldr	r3, [pc, #108]	; (8004b9c <do_InitJob+0x7c>)
  8004b30:	785b      	ldrb	r3, [r3, #1]
  8004b32:	2b17      	cmp	r3, #23
  8004b34:	d005      	beq.n	8004b42 <do_InitJob+0x22>
-			init_LSM6DSL();
+		initStatus.LSM6DSL = init_LSM6DSL();
  8004b36:	f7ff ff47 	bl	80049c8 <init_LSM6DSL>
  8004b3a:	4603      	mov	r3, r0
  8004b3c:	461a      	mov	r2, r3
-	if (winter.oldState != SYSTEM_STATE_SLEEP) initStatus.LSM6DSL =
  8004b3e:	4b18      	ldr	r3, [pc, #96]	; (8004ba0 <do_InitJob+0x80>)
  8004b40:	701a      	strb	r2, [r3, #0]
 
@@ -12981,10 +12983,10 @@ uint8_t do_InitJob(void) {
  8004b6e:	461a      	mov	r2, r3
  8004b70:	4b0b      	ldr	r3, [pc, #44]	; (8004ba0 <do_InitJob+0x80>)
  8004b72:	70da      	strb	r2, [r3, #3]
-	funPtr = &MemToMemTxCplt;
-	HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_channel1,
-			HAL_DMA_XFER_CPLT_CB_ID, funPtr);
-	*/
+	 funPtr = &MemToMemTxCplt;
+	 HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_channel1,
+	 HAL_DMA_XFER_CPLT_CB_ID, funPtr);
+	 */
 	// Set the state as IDLE
 	App_SetSystemState(SYSTEM_STATE_IDLE);
  8004b74:	2010      	movs	r0, #16
@@ -13025,10 +13027,10 @@ uint8_t do_InitJob(void) {
 void do_IdleJob(void) {
  8004ba8:	b580      	push	{r7, lr}
  8004baa:	af00      	add	r7, sp, #0
-		}
-	}
+	 }
+	 }
 
-	*/
+	 */
 
 	if ((myTick % LED_BLINK_PERIOD_IDLE) == 0) {
  8004bac:	4b0b      	ldr	r3, [pc, #44]	; (8004bdc <do_IdleJob+0x34>)
@@ -13041,16 +13043,16 @@ void do_IdleJob(void) {
  8004bc0:	1ad3      	subs	r3, r2, r3
  8004bc2:	2b00      	cmp	r3, #0
  8004bc4:	d108      	bne.n	8004bd8 <do_IdleJob+0x30>
-				IO_SetLED(LED_BLUE);
+		IO_SetLED(LED_BLUE);
  8004bc6:	2004      	movs	r0, #4
  8004bc8:	f005 fa2c 	bl	800a024 <IO_SetLED>
-				HAL_Delay(10);
+		HAL_Delay(10);
  8004bcc:	200a      	movs	r0, #10
  8004bce:	f7fb fcef 	bl	80005b0 <HAL_Delay>
-				IO_ResetLED(LED_BLUE);
+		IO_ResetLED(LED_BLUE);
  8004bd2:	2004      	movs	r0, #4
  8004bd4:	f005 fa52 	bl	800a07c <IO_ResetLED>
-			}
+	}
 }
  8004bd8:	bf00      	nop
  8004bda:	bd80      	pop	{r7, pc}
@@ -13137,37 +13139,37 @@ void handle_ScheduledOperations(void) {
  8004c4a:	d002      	beq.n	8004c52 <handle_ScheduledOperations+0x1a>
  8004c4c:	2b02      	cmp	r3, #2
  8004c4e:	d003      	beq.n	8004c58 <handle_ScheduledOperations+0x20>
-						- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
-					HAL_NVIC_SystemReset();
-				}
-				break;
-			default:
-				break;
+					- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
+				HAL_NVIC_SystemReset();
+			}
+			break;
+		default:
+			break;
  8004c50:	e019      	b.n	8004c86 <handle_ScheduledOperations+0x4e>
-				if (HAL_GetTick()
+			if (HAL_GetTick()
  8004c52:	f7fb fca1 	bl	8000598 <HAL_GetTick>
-				break;
+			break;
  8004c56:	e016      	b.n	8004c86 <handle_ScheduledOperations+0x4e>
-				if (HAL_GetTick()
+			if (HAL_GetTick()
  8004c58:	f7fb fc9e 	bl	8000598 <HAL_GetTick>
  8004c5c:	4603      	mov	r3, r0
  8004c5e:	4618      	mov	r0, r3
  8004c60:	f04f 0100 	mov.w	r1, #0
-						- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
+					- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
  8004c64:	4b09      	ldr	r3, [pc, #36]	; (8004c8c <handle_ScheduledOperations+0x54>)
  8004c66:	e9d3 2302 	ldrd	r2, r3, [r3, #8]
  8004c6a:	1a84      	subs	r4, r0, r2
  8004c6c:	eb61 0503 	sbc.w	r5, r1, r3
-				if (HAL_GetTick()
+			if (HAL_GetTick()
  8004c70:	f240 72cf 	movw	r2, #1999	; 0x7cf
  8004c74:	f04f 0300 	mov.w	r3, #0
  8004c78:	42ab      	cmp	r3, r5
  8004c7a:	bf08      	it	eq
  8004c7c:	42a2      	cmpeq	r2, r4
  8004c7e:	d201      	bcs.n	8004c84 <handle_ScheduledOperations+0x4c>
-					HAL_NVIC_SystemReset();
+				HAL_NVIC_SystemReset();
  8004c80:	f7fb fe43 	bl	800090a <HAL_NVIC_SystemReset>
-				break;
+			break;
  8004c84:	bf00      	nop
 		}
 }
