@@ -25,6 +25,7 @@ PeripheralsInitStatus_t initStatus = { .LSM6DSL = 0, .HTS221 = 0, .LPS22HH = 0,
 LatestData_t latestData;
 
 uint32_t myTick;
+uint32_t myEpoch;
 
 /* Extern variables ----------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_memtomem_dma2_channel1;
@@ -57,6 +58,15 @@ uint16_t App_GetPeriod(void) {
 	return winter.period;
 }
 
+uint8_t App_MyDebug(uint8_t led) {
+	RTC_GetDateTime_Epoch(&myEpoch);
+if ((myEpoch % 100) == 0) {
+		IO_SetLED(led);
+		HAL_Delay(100);
+		IO_ResetLED(led);
+	}
+}
+
 /*
  * @brief Set the main job period.
  * @param p The new main job period.
@@ -83,100 +93,91 @@ uint8_t App_SetSystemState(SystemState_e s) {
 	if (s != App_GetSystemState()) {
 		// State exiting conditions
 		switch (winter.state) {
-		case SYSTEM_STATE_INIT:
-			IO_ResetLED(LED_BLUE);
-			break;
-		case SYSTEM_STATE_IDLE:
-		case SYSTEM_STATE_IDLE_CONNECTED:
-			if (s == SYSTEM_STATE_IDLE || s == SYSTEM_STATE_IDLE_CONNECTED)
-				__NOP();
-			else
-				IO_ResetLED(LED_GREEN | LED_BLUE);
-			break;
-		case SYSTEM_STATE_LOG:
-			IO_ResetLED(LED_GREEN);
-			break;
-		case SYSTEM_STATE_ERROR:
-			IO_ResetLED(LED_RED);
-			break;
-		default:
-			break;
+			case SYSTEM_STATE_INIT:
+				IO_ResetLED(LED_BLUE);
+				break;
+			case SYSTEM_STATE_IDLE:
+			case SYSTEM_STATE_IDLE_CONNECTED:
+				if (s == SYSTEM_STATE_IDLE || s == SYSTEM_STATE_IDLE_CONNECTED)
+					__NOP();
+				else
+					IO_ResetLED(LED_GREEN | LED_BLUE);
+				break;
+			case SYSTEM_STATE_LOG:
+				IO_ResetLED(LED_GREEN);
+				break;
+			case SYSTEM_STATE_ERROR:
+				IO_ResetLED(LED_RED);
+				break;
+			default:
+				break;
 		}
 
 		// State entering conditions
 		switch (s) {
-		case SYSTEM_STATE_INIT:
-			IO_SetLED(LED_BLUE);
-			break;
-		case SYSTEM_STATE_IDLE:
-		case SYSTEM_STATE_IDLE_CONNECTED:
-			if (winter.state == SYSTEM_STATE_IDLE
-					|| winter.state == SYSTEM_STATE_IDLE_CONNECTED) {
-				/*
-				 * If the transition is IDLE <-> IDLE_CONNECTED (either in
-				 * one direction or the opposite), there's nothing to do
+			case SYSTEM_STATE_INIT:
+				IO_SetLED(LED_BLUE);
+				break;
+			case SYSTEM_STATE_IDLE:
+			case SYSTEM_STATE_IDLE_CONNECTED:
+				IO_SetLED(LED_GREEN);
+				if (winter.state == SYSTEM_STATE_IDLE
+						|| winter.state == SYSTEM_STATE_IDLE_CONNECTED) {
+					/*
+					 * If the transition is IDLE <-> IDLE_CONNECTED (either in
+					 * one direction or the opposite), there's nothing to do
+					 */
+				} else {
+					// Disable the double-tap detection
+					LSM6DSL_Enable_DoubleTapInterrupt(0);
+
+					// Turn OFF the sensors
+					LSM6DSL_PowerDown_Axl(1);
+					LSM6DSL_PowerDown_Gyro(1);
+
+					// Finally, enter the Low Power Run mode
+					if (!winter.lprEnabled) Enable_LPR_Mode();
+
+					// Set the new app period
+					App_SetPeriod(PERIOD_IDLE);
+				}
+				break;
+			case SYSTEM_STATE_SLEEP:
+				// Activate the accelerometer
+				LSM6DSL_PowerDown_Axl(0);
+
+				// Slow down the accelerometer to reduce power consumption
+				LSM6DSL_Set_Axl_ODR(LSM6DSL_ODR_104Hz);
+
+				// Enable the double-tap detection
+				//LSM6DSL_Enable_DoubleTapInterrupt(1);
+
+				break;
+			case SYSTEM_STATE_LOG:
+				// Check the SD presence
+				/*if (!BSP_SD_IsDetected()) return 0;
+
+				// Try to initialize the log
+				char logName[LOG_NAME_SIZE];
+				RTC_GetDateTime_FormattedChar(logName);
+				if (!Log_Create_DataFile(logName)) {
+					return 0;
+				}
 				 */
-				__NOP();
-			} else {
-				// Disable the double-tap detection
-				LSM6DSL_Enable_DoubleTapInterrupt(0);
-
-				// Turn OFF the sensors
-				LSM6DSL_PowerDown_Axl(1);
-				LSM6DSL_PowerDown_Gyro(1);
-
-				// Finally, enter the Low Power Run mode
-				if (!winter.lprEnabled)
-					Enable_LPR_Mode();
+				// Turn ON the inertial sensors needed required for the log
+				if ((winter.logSensors & SENS_AXL) != 0)
+					LSM6DSL_PowerDown_Axl(0);
+				if ((winter.logSensors & SENS_GYRO) != 0)
+					LSM6DSL_PowerDown_Gyro(0);
 
 				// Set the new app period
-				App_SetPeriod(PERIOD_IDLE);
-			}
-			break;
-		case SYSTEM_STATE_SLEEP:
-			// Activate the accelerometer
-			LSM6DSL_PowerDown_Axl(0);
-
-			// Slow down the accelerometer to reduce power consumption
-			LSM6DSL_Set_Axl_ODR(LSM6DSL_ODR_104Hz);
-
-			// Enable the double-tap detection
-			LSM6DSL_Enable_DoubleTapInterrupt(1);
-
-			/*
-			 if(myTick >= 120000) {
-			 myTick = 0;
-			 LSM6DSL_Enable_DoubleTapInterrupt(0);
-			 App_SetSystemState(SYSTEM_STATE_IDLE);
-			 }
-			 */
-
-			break;
-		case SYSTEM_STATE_LOG:
-			// Check the SD presence
-			/*if (!BSP_SD_IsDetected()) return 0;
-
-			 // Try to initialize the log
-			 char logName[LOG_NAME_SIZE];
-			 RTC_GetDateTime_FormattedChar(logName);
-			 if (!Log_Create_DataFile(logName)) {
-			 return 0;
-			 }
-			 */
-			// Turn ON the inertial sensors needed required for the log
-			if ((winter.logSensors & SENS_AXL) != 0)
-				LSM6DSL_PowerDown_Axl(0);
-			if ((winter.logSensors & SENS_GYRO) != 0)
-				LSM6DSL_PowerDown_Gyro(0);
-
-			// Set the new app period
-			App_SetPeriod(1000 / winter.logFrequency);
-			break;
-		case SYSTEM_STATE_ERROR:
-			App_SetPeriod(PERIOD_ERROR);
-			break;
-		default:
-			break;
+				App_SetPeriod(1000 / winter.logFrequency);
+				break;
+			case SYSTEM_STATE_ERROR:
+				App_SetPeriod(PERIOD_ERROR);
+				break;
+			default:
+				break;
 		}
 
 		// Change the state
@@ -185,7 +186,7 @@ uint8_t App_SetSystemState(SystemState_e s) {
 
 		// Update the last activity time and reset the tick counter
 		App_UpdateLastActivityTime();
-		myTick = 0;
+		// myTick = 0;
 	}
 
 	return s == App_GetSystemState();
@@ -271,21 +272,21 @@ uint8_t App_InitSystem(void) {
  */
 void App_DoJob(void) {
 	switch (winter.state) {
-	case SYSTEM_STATE_INIT:
-		do_InitJob();
-		break;
-	case SYSTEM_STATE_IDLE:
-	case SYSTEM_STATE_IDLE_CONNECTED:
-		do_IdleJob();
-		break;
-	case SYSTEM_STATE_LOG:
-		do_LogJob();
-		break;
-	case SYSTEM_STATE_ERROR:
-		do_ErrorJob();
-		break;
-	default:
-		break;
+		case SYSTEM_STATE_INIT:
+			do_InitJob();
+			break;
+		case SYSTEM_STATE_IDLE:
+		case SYSTEM_STATE_IDLE_CONNECTED:
+			do_IdleJob();
+			break;
+		case SYSTEM_STATE_LOG:
+			do_LogJob();
+			break;
+		case SYSTEM_STATE_ERROR:
+			do_ErrorJob();
+			break;
+		default:
+			break;
 	}
 
 	handle_ScheduledOperations();
@@ -300,12 +301,10 @@ void App_Handle_SysTick(void) {
 	++myTick;
 
 	// Schedule the main job
-	if (myTick % App_GetPeriod() == 0)
-		HAL_NVIC_SetPendingIRQ(JOB_IRQn);
+	if (myTick % App_GetPeriod() == 0) HAL_NVIC_SetPendingIRQ(JOB_IRQn);
 
 	// Schedule the Bluetooth job
-	if (myTick % 100 == 0)
-		HAL_NVIC_SetPendingIRQ(BLE_JOB_IRQn);
+	if (myTick % 100 == 0) HAL_NVIC_SetPendingIRQ(BLE_JOB_IRQn);
 }
 
 /*
@@ -334,13 +333,13 @@ void App_Handle_BTConnected(void) {
  */
 void App_Handle_BTDisconnected(void) {
 	switch (App_GetSystemState()) {
-	case SYSTEM_STATE_IDLE_CONNECTED:
-		// Get back to IDLE state
-		App_SetSystemState(SYSTEM_STATE_IDLE);
-		break;
-	default:
-		// Nothing to do
-		break;
+		case SYSTEM_STATE_IDLE_CONNECTED:
+			// Get back to IDLE state
+			App_SetSystemState(SYSTEM_STATE_IDLE);
+			break;
+		default:
+			// Nothing to do
+			break;
 	}
 }
 
@@ -524,8 +523,8 @@ uint8_t do_InitJob(void) {
 	IO_Enable_VCC(GPIO_PIN_SET);
 
 	// Initialize the LSM6DSL only if not dealing with a wake-up from STOP mode
-	if (winter.oldState != SYSTEM_STATE_SLEEP)
-		initStatus.LSM6DSL = init_LSM6DSL();
+	if (winter.oldState != SYSTEM_STATE_SLEEP) initStatus.LSM6DSL =
+			init_LSM6DSL();
 
 	// Initialize all other peripherals
 	initStatus.HTS221 = init_HTS221();
@@ -546,23 +545,23 @@ uint8_t do_InitJob(void) {
 
 	// Try to mount SD card
 	/*winter.cardMounted = (f_mount(&FatFsDisk, SDPath, 1) == FR_OK);
-	 if (!winter.cardMounted) {
-	 App_SetSystemState(SYSTEM_STATE_ERROR);
-	 return 0;
-	 }
+	if (!winter.cardMounted) {
+		App_SetSystemState(SYSTEM_STATE_ERROR);
+		return 0;
+	}
 
-	 // Create an init status log file
-	 if (!Log_Create_InitStatusFile(&initStatus)) {
-	 App_SetSystemState(SYSTEM_STATE_ERROR);
-	 return 0;
-	 }
+	// Create an init status log file
+	if (!Log_Create_InitStatusFile(&initStatus)) {
+		App_SetSystemState(SYSTEM_STATE_ERROR);
+		return 0;
+	}
 
-	 // Register DMA Callback for Mem2Mem DMA Transfer
-	 void (*funPtr)(DMA_HandleTypeDef*);
-	 funPtr = &MemToMemTxCplt;
-	 HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_channel1,
-	 HAL_DMA_XFER_CPLT_CB_ID, funPtr);
-	 */
+	// Register DMA Callback for Mem2Mem DMA Transfer
+	void (*funPtr)(DMA_HandleTypeDef*);
+	funPtr = &MemToMemTxCplt;
+	HAL_DMA_RegisterCallback(&hdma_memtomem_dma2_channel1,
+			HAL_DMA_XFER_CPLT_CB_ID, funPtr);
+	*/
 	// Set the state as IDLE
 	App_SetSystemState(SYSTEM_STATE_IDLE);
 
@@ -579,27 +578,19 @@ uint8_t do_InitJob(void) {
  */
 void do_IdleJob(void) {
 	// Check the idle-to-sleep timeout (only in case of SYSTEM_STATE_IDLE)
+	if (myTick >= TIMEOUT_IDLE_TO_SLEEP
+			&& App_GetSystemState() == SYSTEM_STATE_IDLE) {
+		App_SetSystemState(SYSTEM_STATE_SLEEP);
 
-	/*
-	 if (myTick >= TIMEOUT_IDLE_TO_SLEEP
-	 && App_GetSystemState() == SYSTEM_STATE_IDLE) {
-	 App_SetSystemState(SYSTEM_STATE_SLEEP);
-
-	 } else {
-	 // Blink the LED after a certain amount of function calls
-	 if ((myTick % LED_BLINK_PERIOD_IDLE) == 0) {
-	 IO_SetLED(LED_BLUE);
-	 HAL_Delay(10);
-	 IO_ResetLED(LED_BLUE);
-	 }
-	 }
-
-	 */
-
-	if ((myTick % LED_BLINK_PERIOD_IDLE) == 0) {
-		IO_SetLED(LED_BLUE);
-		HAL_Delay(10);
-		IO_ResetLED(LED_BLUE);
+	} else {
+		// Blink the LED after a certain amount of function calls
+		/*if ((myTick % LED_BLINK_PERIOD_IDLE) == 0) {
+			IO_SetLED(LED_BLUE);
+			HAL_Delay(10);
+			IO_ResetLED(LED_BLUE);
+		}*/
+		//App_MyDebug(LED_GREEN);
+		__NOP();
 	}
 }
 
@@ -641,20 +632,20 @@ void do_ErrorJob(void) {
 void handle_ScheduledOperations(void) {
 	if (winter.scheduledOperation != OP_NONE)
 		switch (winter.scheduledOperation) {
-		case OP_SHUTDOWN:
-			if (HAL_GetTick()
-					- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
-				//TODO shutdown
-			}
-			break;
-		case OP_RESTART:
-			if (HAL_GetTick()
-					- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
-				HAL_NVIC_SystemReset();
-			}
-			break;
-		default:
-			break;
+			case OP_SHUTDOWN:
+				if (HAL_GetTick()
+						- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
+					//TODO shutdown
+				}
+				break;
+			case OP_RESTART:
+				if (HAL_GetTick()
+						- winter.lastActivityTime>= RESTART_SHUTDOWN_DELAY) {
+					HAL_NVIC_SystemReset();
+				}
+				break;
+			default:
+				break;
 		}
 }
 
